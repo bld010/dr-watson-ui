@@ -10,7 +10,9 @@ import "./ChatBox.css"
 export class ChatBox extends Component {
   constructor() {
     super();
-    this.state = { message: '' }
+    this.state = { 
+      message: '' 
+    }
     this.convo = createRef();
   }
 

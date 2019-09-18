@@ -52,6 +52,58 @@ describe('startConversation', () => {
   });
 });
 
+describe('postMessage', () => {
+  const mockNewMessage = "I'm doing well.";
+  const mockResponse = {
+    message: "I'm happy to hear that."
+  };
+
+  beforeEach(() => {
+    window.fetch = jest.fn().mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      });
+    });
+  });
+
+  it('should call fetch with the correct url', () => {
+    const url = 'https://drwatson-api.herokuapp.com/api/message';
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ newMessage: mockNewMessage })
+    };
+    postMessage(mockNewMessage);
+
+    expect(window.fetch).toHaveBeenCalledWith(url, options);
+  });
+
+  it('should return a new response message (HAPPY)', () => {
+    expect(postMessage(mockNewMessage)).resolves.toEqual(mockResponse);
+  });
+
+  it('should return an error (SAD)', () => {
+    window.fetch = jest.fn().mockImplementation(() => {
+      return Promise.resolve({
+        ok: false
+      });
+    });
+
+    expect(postMessage(mockNewMessage)).rejects.toEqual(Error('There was a problem posting the message. Please try again later.'))
+  });
+
+  it('should return an error if promise rejects (SAD)', () => {
+    window.fetch = jest.fn().mockImplementation(() => {
+      return Promise.reject(Error('fetch failed.'))
+    });
+
+    expect(postMessage(mockNewMessage)).rejects.toEqual(Error('fetch failed.'))
+  });
+});
+
 describe('endConversation', () => {
 
   beforeEach(() => {
